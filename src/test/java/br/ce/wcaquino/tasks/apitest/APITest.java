@@ -13,39 +13,41 @@ public class APITest {
 	public static void setup() {
 		RestAssured.baseURI = "http://localhost:8001/tasks-backend";
 	}
-	
+
 	@Test
 	public void deveRetornarTarefas() {
-		RestAssured.given()
-		.when()
-			.get("/todo")
-		.then()
-			.statusCode(200);			
+		RestAssured.given().when().get("/todo").then().statusCode(200);
 	}
-	
+
 	@Test
 	public void deveAdicionarTarefaComSucesso() {
-		RestAssured.given()
-			.body("{\"task\":\"Teste via API\",\"dueDate\":\"2023-10-20\"}")
-			.contentType(ContentType.JSON)
-		.when()
-			.post("/todo")
-		.then()
-			.log().all()
-			.statusCode(201);			
+		RestAssured.given().body("{\"task\":\"Teste via API\",\"dueDate\":\"2030-10-20\"}")
+				.contentType(ContentType.JSON).when().post("/todo").then().statusCode(201);
 	}
-	
-	
+
 	@Test
 	public void naoDeveAdicionarTarefaInvalida() {
-		RestAssured.given()
-			.body("{\"task\":\"Teste via API\",\"dueDate\":\"2010-10-20\"}")
-			.contentType(ContentType.JSON)
-		.when()
-			.post("/todo")
-		.then()
-			.statusCode(400)
-			.body("message", CoreMatchers.is("Due date must not be in past"));			
+		RestAssured.given().body("{\"task\":\"Teste via API\",\"dueDate\":\"2010-10-20\"}")
+				.contentType(ContentType.JSON).when().post("/todo").then().statusCode(400)
+				.body("message", CoreMatchers.is("Due date must not be in past"));
 	}
-	
+
+	@Test
+	public void deveRemoverTarefaComSucesso() {
+		// inserir
+		Integer id = RestAssured.given().body("{\"task\":\"Tarefa Teste\",\"dueDate\":\"2030-10-20\"}")
+				.contentType(ContentType.JSON).when().post("/todo").then().statusCode(201)
+				.extract().path("id");
+					
+		// remover
+		RestAssured.given()
+			.when()
+				.delete("/todo/" + id)
+			.then()
+				.statusCode(204);
+		
+		
+
+	}
+
 }
